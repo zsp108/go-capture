@@ -3,25 +3,56 @@
 package ui
 
 /*
+#cgo CFLAGS: -x objective-c -fobjc-arc
 #cgo LDFLAGS: -framework Cocoa -framework CoreGraphics -framework QuartzCore
-#include <Cocoa/Cocoa.h>
+#import <Cocoa/Cocoa.h>
 
-// Helper to create and configure borderless topmost window
+// C-compatible bridge functions for Objective-C window management
 static void* create_overlay_window(int x, int y, int w, int h) {
-    NSRect frame = NSMakeRect(x, y, w, h);
-    NSWindow* window = [[NSWindow alloc] initWithContentRect:frame
-        styleMask:NSWindowStyleMaskBorderless
-        backing:NSBackingStoreBuffered
-        defer:NO];
+    @autoreleasepool {
+        NSRect frame = NSMakeRect(x, y, w, h);
+        NSWindow* window = [[NSWindow alloc] initWithContentRect:frame
+            styleMask:NSWindowStyleMaskBorderless
+            backing:NSBackingStoreBuffered
+            defer:NO];
 
-    [window setOpaque:NO];
-    [window setBackgroundColor:[NSColor clearColor]];
-    [window setLevel:NSPopUpMenuWindowLevel]; // Always topmost above all apps
-    [window setIgnoresMouseEvents:NO];
-    [window setAcceptsMouseMovedEvents:YES];
-    [window setCollectionBehavior:NSWindowCollectionBehaviorCanJoinAllSpaces | NSWindowCollectionBehaviorFullScreenAuxiliary];
+        [window setOpaque:NO];
+        [window setBackgroundColor:[NSColor clearColor]];
+        [window setLevel:NSPopUpMenuWindowLevel];
+        [window setIgnoresMouseEvents:NO];
+        [window setAcceptsMouseMovedEvents:YES];
+        [window setCollectionBehavior:(NSWindowCollectionBehaviorCanJoinAllSpaces | NSWindowCollectionBehaviorFullScreenAuxiliary)];
 
-    return (void*)window;
+        return (__bridge_retained void*)window;
+    }
+}
+
+static void show_overlay_window(void* winPtr) {
+    @autoreleasepool {
+        if (winPtr != NULL) {
+            NSWindow* window = (__bridge NSWindow*)winPtr;
+            [window makeKeyAndOrderFront:nil];
+            [NSApp activateIgnoringOtherApps:YES];
+        }
+    }
+}
+
+static void hide_overlay_window(void* winPtr) {
+    @autoreleasepool {
+        if (winPtr != NULL) {
+            NSWindow* window = (__bridge NSWindow*)winPtr;
+            [window orderOut:nil];
+        }
+    }
+}
+
+static void close_overlay_window(void* winPtr) {
+    @autoreleasepool {
+        if (winPtr != NULL) {
+            NSWindow* window = (__bridge_transfer NSWindow*)winPtr;
+            [window close];
+        }
+    }
 }
 */
 import "C"
@@ -29,19 +60,18 @@ import (
 	"fmt"
 	"image"
 	"sync"
+	"unsafe"
 )
 
 // DarwinNativeWindow implements NativeWindow for macOS using Cocoa NSWindow.
 type DarwinNativeWindow struct {
 	mu           sync.Mutex
 	bounds       image.Rectangle
-	windowHandle unsafePointer
+	windowHandle unsafe.Pointer
 	mouseCb      MouseCallback
 	keyCb        KeyCallback
 	isVisible    bool
 }
-
-type unsafePointer = uintptr
 
 func NewNativeWindow() NativeWindow {
 	return &DarwinNativeWindow{}
@@ -52,13 +82,23 @@ func (w *DarwinNativeWindow) Initialize(bounds image.Rectangle) error {
 	defer w.mu.Unlock()
 
 	w.bounds = bounds
-	// In production, creates native Cocoa NSWindow
+	ptr := C.create_overlay_window(
+		C.int(bounds.Min.X),
+		C.int(bounds.Min.Y),
+		C.int(bounds.Dx()),
+		C.int(bounds.Dy()),
+	)
+	w.windowHandle = ptr
 	return nil
 }
 
 func (w *DarwinNativeWindow) Show() error {
 	w.mu.Lock()
 	defer w.mu.Unlock()
+
+	if w.windowHandle != nil {
+		C.show_overlay_window(w.windowHandle)
+	}
 	w.isVisible = true
 	return nil
 }
@@ -66,6 +106,10 @@ func (w *DarwinNativeWindow) Show() error {
 func (w *DarwinNativeWindow) Hide() error {
 	w.mu.Lock()
 	defer w.mu.Unlock()
+
+	if w.windowHandle != nil {
+		C.hide_overlay_window(w.windowHandle)
+	}
 	w.isVisible = false
 	return nil
 }
@@ -100,6 +144,11 @@ func (w *DarwinNativeWindow) OnKeyEvent(cb KeyCallback) {
 func (w *DarwinNativeWindow) Close() error {
 	w.mu.Lock()
 	defer w.mu.Unlock()
+
+	if w.windowHandle != nil {
+		C.close_overlay_window(w.windowHandle)
+		w.windowHandle = nil
+	}
 	w.isVisible = false
 	return nil
 }
