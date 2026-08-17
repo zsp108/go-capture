@@ -8,6 +8,21 @@ import (
 	"sync"
 )
 
+var stopChan = make(chan struct{})
+
+// RunEventLoop starts the Windows message loop.
+func RunEventLoop() {
+	<-stopChan
+}
+
+// StopEventLoop exits the event loop.
+func StopEventLoop() {
+	select {
+	case stopChan <- struct{}{}:
+	default:
+	}
+}
+
 // WindowsNativeWindow implements NativeWindow for Windows using Win32 API.
 type WindowsNativeWindow struct {
 	mu        sync.Mutex

@@ -8,6 +8,21 @@ import (
 	"sync"
 )
 
+var stopChan = make(chan struct{})
+
+// RunEventLoop starts the Linux event loop.
+func RunEventLoop() {
+	<-stopChan
+}
+
+// StopEventLoop exits the event loop.
+func StopEventLoop() {
+	select {
+	case stopChan <- struct{}{}:
+	default:
+	}
+}
+
 // LinuxNativeWindow implements NativeWindow for Linux using X11 / Wayland.
 type LinuxNativeWindow struct {
 	mu        sync.Mutex

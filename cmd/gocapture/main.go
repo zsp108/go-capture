@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"runtime"
 	"syscall"
-	"time"
 
 	"github.com/gocapture/go-capture/internal/app"
 	"github.com/gocapture/go-capture/internal/ui"
@@ -18,6 +18,11 @@ const (
 	AppName   = "GoCapture"
 	BuildDate = "2026-08-17"
 )
+
+func init() {
+	// macOS Cocoa requires the main event loop to run on the locked main OS thread
+	runtime.LockOSThread()
+}
 
 func main() {
 	showVersion := flag.Bool("v", false, "显示版本信息")
@@ -30,7 +35,7 @@ func main() {
 	}
 
 	fmt.Println("================================================================")
-	fmt.Printf("🚀 %s %s 原生桌面截图软件已启动\n", AppName, Version)
+	fmt.Printf("🚀 %s %s 原生桌面截图软件正在启动...\n", AppName, Version)
 	fmt.Println("================================================================")
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -50,18 +55,21 @@ func main() {
 		fmt.Printf("⚡ 全局截屏热键已就绪: %s | 贴图热键: %s\n", cfg.HotkeyCapture, cfg.HotkeyPin)
 	}
 
-	// 4. 监听中断退出信号
+	// 4. 监听中断退出信号并在后台协程响应
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)
+	go func() {
+		<-sigChan
+		fmt.Println("\n🛑 正在安全退出 GoCapture...")
+		overlay.Close()
+		coreApp.Shutdown()
+		ui.StopEventLoop()
+		fmt.Println("👋 已完全退出。")
+		os.Exit(0)
+	}()
 
-	fmt.Println("\n✅ GoCapture 已在后台常驻运行 (纯原生架构，无 Web 依赖)。")
-	fmt.Println("👉 按下全局截屏快捷键或发送中断信号可操作。按 Ctrl+C 退出。")
+	fmt.Println("\n✅ GoCapture 已就绪并进入原生事件循环 (响应 macOS LaunchServices)。")
 
-	<-sigChan
-
-	fmt.Println("\n🛑 正在退出 GoCapture...")
-	overlay.Close()
-	coreApp.Shutdown()
-	time.Sleep(50 * time.Millisecond)
-	fmt.Println("👋 已完全退出。")
+	// 5. 启动原生 OS 事件循环 (阻塞主线程并响应 LaunchServices，彻底杜绝未响应卡顿)
+	ui.RunEventLoop()
 }

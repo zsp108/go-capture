@@ -7,12 +7,32 @@ package ui
 #cgo LDFLAGS: -framework Cocoa -framework CoreGraphics -framework QuartzCore
 #import <Cocoa/Cocoa.h>
 
-// Initialize NSApplication for accessory/helper mode
-static void init_ns_app() {
+// Run the Cocoa event loop on the main OS thread
+static void run_ns_app() {
     @autoreleasepool {
         [NSApplication sharedApplication];
         [NSApp setActivationPolicy:NSApplicationActivationPolicyAccessory];
         [NSApp finishLaunching];
+        [NSApp run];
+    }
+}
+
+// Stop the Cocoa event loop safely
+static void stop_ns_app() {
+    @autoreleasepool {
+        if (NSApp != nil) {
+            [NSApp stop:nil];
+            NSEvent* event = [NSEvent otherEventWithType:NSEventTypeApplicationDefined
+                location:NSMakePoint(0, 0)
+                modifierFlags:0
+                timestamp:0
+                windowNumber:0
+                context:nil
+                subtype:0
+                data1:0
+                data2:0];
+            [NSApp postEvent:event atStart:YES];
+        }
     }
 }
 
@@ -68,14 +88,18 @@ import "C"
 import (
 	"fmt"
 	"image"
-	"runtime"
 	"sync"
 	"unsafe"
 )
 
-func init() {
-	runtime.LockOSThread()
-	C.init_ns_app()
+// RunEventLoop starts the native macOS Cocoa event loop, responding immediately to LaunchServices.
+func RunEventLoop() {
+	C.run_ns_app()
+}
+
+// StopEventLoop exits the Cocoa event loop.
+func StopEventLoop() {
+	C.stop_ns_app()
 }
 
 // DarwinNativeWindow implements NativeWindow for macOS using Cocoa NSWindow.
