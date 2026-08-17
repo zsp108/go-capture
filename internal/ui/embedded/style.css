@@ -1,0 +1,1373 @@
+/* ==========================================================================
+   Golang Desktop Screenshot Software - Design Demo System
+   Style: macOS Dark Glassmorphism, Pixel-Perfect Guidelines & Toolbars
+   ========================================================================== */
+
+:root {
+  --bg-dark: #0f172a;
+  --panel-bg: rgba(30, 41, 59, 0.85);
+  --panel-border: rgba(255, 255, 255, 0.12);
+  --panel-shadow: 0 12px 36px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1);
+  --accent-blue: #3b82f6;
+  --accent-blue-glow: rgba(59, 130, 246, 0.4);
+  --accent-cyan: #06b6d4;
+  --accent-red: #ef4444;
+  --accent-green: #10b981;
+  --accent-yellow: #f59e0b;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --guide-color: #3b82f6;
+  --handle-size: 10px;
+  --font-stack: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --mono-stack: "SF Mono", "Fira Code", "Cascadia Code", Menlo, Monaco, Consolas, monospace;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+html, body {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  font-family: var(--font-stack);
+  background-color: #0b0f19;
+  color: var(--text-main);
+  position: relative;
+}
+
+/* ==========================================================================
+   1. Simulated Desktop Environment
+   ========================================================================== */
+.desktop-container {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 30%, #1e293b 0%, #0f172a 60%, #020617 100%);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Simulated macOS Menu Bar */
+.mac-menubar {
+  height: 30px;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  font-size: 13px;
+  z-index: 10;
+}
+
+.menubar-left, .menubar-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.menubar-item {
+  color: #cbd5e1;
+  cursor: default;
+  transition: color 0.15s ease;
+}
+
+.menubar-item.active {
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.menubar-item:hover {
+  color: #ffffff;
+}
+
+.apple-logo {
+  font-size: 15px;
+}
+
+/* Desktop Workspace Area */
+.desktop-workspace {
+  flex: 1;
+  position: relative;
+  padding: 24px 32px 80px 32px;
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 24px;
+}
+
+/* Simulated IDE Window */
+.mockup-window {
+  background: rgba(30, 41, 59, 0.75);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.window-header {
+  height: 38px;
+  background: rgba(15, 23, 42, 0.6);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  justify-content: space-between;
+}
+
+.window-controls {
+  display: flex;
+  gap: 8px;
+}
+
+.ctrl-btn {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.ctrl-btn.red { background: #ff5f56; }
+.ctrl-btn.yellow { background: #ffbd2e; }
+.ctrl-btn.green { background: #27c93f; }
+
+.window-title {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-family: var(--mono-stack);
+}
+
+.window-body {
+  flex: 1;
+  padding: 18px;
+  overflow-y: auto;
+  font-family: var(--mono-stack);
+  font-size: 13px;
+  line-height: 1.6;
+  color: #e2e8f0;
+}
+
+/* Code Syntax Highlighting in Mockup */
+.code-line { display: flex; gap: 16px; }
+.line-num { color: #475569; width: 24px; text-align: right; user-select: none; }
+.code-kw { color: #f43f5e; font-weight: 600; }
+.code-fn { color: #38bdf8; }
+.code-str { color: #a3e635; }
+.code-comment { color: #64748b; font-style: italic; }
+.code-type { color: #fbbf24; }
+
+/* Doc/Browser Window */
+.doc-card {
+  background: rgba(15, 23, 42, 0.85);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.doc-card h3 {
+  font-size: 16px;
+  margin-bottom: 8px;
+  color: var(--accent-blue);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.doc-card p {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin-bottom: 10px;
+}
+
+.api-badge {
+  display: inline-block;
+  background: rgba(59, 130, 246, 0.15);
+  color: #93c5fd;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+}
+
+/* Floating Launch Action Dock */
+.floating-launch-dock {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  border: 1px solid var(--panel-border);
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.6);
+  border-radius: 20px;
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 20;
+}
+
+.launch-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: #ffffff;
+  border: none;
+  padding: 9px 20px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
+  transition: all 0.2s ease;
+}
+
+.launch-btn:hover {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.6);
+}
+
+.launch-btn:active {
+  transform: translateY(1px);
+}
+
+.dock-hint {
+  font-size: 12px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.kbd-badge {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-family: var(--mono-stack);
+  font-size: 11px;
+  color: #e2e8f0;
+}
+
+/* ==========================================================================
+   2. Fullscreen Screenshot Overlay Layer
+   ========================================================================== */
+.screenshot-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1000;
+  cursor: crosshair;
+  display: none;
+  opacity: 0;
+  transition: opacity 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.screenshot-overlay.active {
+  display: block;
+  opacity: 1;
+}
+
+/* Background Dimmed Mask Canvas */
+#mask-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* Dynamic Fullscreen Crosshairs Guidelines */
+.guideline-h, .guideline-v {
+  position: absolute;
+  pointer-events: none;
+  z-index: 1005;
+  display: none;
+}
+
+.guideline-h {
+  width: 100%;
+  height: 1px;
+  border-top: 1px dashed var(--guide-color);
+  opacity: 0.65;
+}
+
+.guideline-v {
+  height: 100%;
+  width: 1px;
+  border-left: 1px dashed var(--guide-color);
+  opacity: 0.65;
+}
+
+/* Selection Box */
+.selection-box {
+  position: absolute;
+  border: 2px solid var(--accent-blue);
+  box-shadow: 0 0 0 9999px rgba(15, 23, 42, 0.65), 0 0 15px var(--accent-blue-glow);
+  z-index: 1010;
+  display: none;
+  cursor: move;
+}
+
+/* Selection Dimensions Tag */
+.dimension-pill {
+  position: absolute;
+  top: -28px;
+  left: 0;
+  background: rgba(15, 23, 42, 0.9);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+  padding: 3px 8px;
+  font-size: 11px;
+  font-family: var(--mono-stack);
+  font-weight: 500;
+  color: #60a5fa;
+  pointer-events: none;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* 8 Resize Control Handles */
+.resize-handle {
+  position: absolute;
+  width: var(--handle-size);
+  height: var(--handle-size);
+  background: #ffffff;
+  border: 2px solid var(--accent-blue);
+  border-radius: 50%;
+  z-index: 1015;
+  transition: transform 0.1s ease, background 0.1s ease;
+}
+
+.resize-handle:hover {
+  transform: scale(1.3);
+  background: var(--accent-blue);
+}
+
+.handle-nw { top: -5px; left: -5px; cursor: nwse-resize; }
+.handle-n  { top: -5px; left: calc(50% - 5px); cursor: ns-resize; }
+.handle-ne { top: -5px; right: -5px; cursor: nesw-resize; }
+.handle-e  { top: calc(50% - 5px); right: -5px; cursor: ew-resize; }
+.handle-se { bottom: -5px; right: -5px; cursor: nwse-resize; }
+.handle-s  { bottom: -5px; left: calc(50% - 5px); cursor: ns-resize; }
+.handle-sw { bottom: -5px; left: -5px; cursor: nesw-resize; }
+.handle-w  { top: calc(50% - 5px); left: -5px; cursor: ew-resize; }
+
+/* Canvas for Drawing Annotations on Selection Area */
+#annotation-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: auto;
+  cursor: crosshair;
+  background: transparent;
+}
+
+/* ==========================================================================
+   3. 🍎 macOS Style Round Pixel Loupe & NSColorPanel Modal
+   ========================================================================== */
+.pixel-loupe.macos-round-loupe {
+  position: absolute;
+  width: 130px;
+  background: transparent;
+  pointer-events: none;
+  z-index: 1050;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+}
+
+.loupe-lens-ring {
+  width: 124px;
+  height: 124px;
+  border-radius: 50%;
+  position: relative;
+  overflow: hidden;
+  background: #000000;
+  border: 3.5px solid #ffffff;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(0, 0, 0, 0.3), inset 0 0 12px rgba(0, 0, 0, 0.5);
+}
+
+#loupe-canvas {
+  width: 124px;
+  height: 124px;
+  display: block;
+  image-rendering: pixelated;
+}
+
+/* Center Crosshair in Round Loupe */
+.loupe-crosshair {
+  position: absolute;
+  top: 62px;
+  left: 62px;
+  transform: translate(-50%, -50%);
+  width: 10px;
+  height: 10px;
+  border: 1.5px solid #38bdf8;
+  pointer-events: none;
+  box-shadow: 0 0 8px rgba(56, 189, 248, 0.9);
+  box-sizing: border-box;
+}
+
+.loupe-crosshair::before, .loupe-crosshair::after {
+  content: "";
+  position: absolute;
+  background: #38bdf8;
+}
+
+.loupe-crosshair::before {
+  top: 50%;
+  left: -20px;
+  right: -20px;
+  height: 1px;
+  transform: translateY(-50%);
+  opacity: 0.7;
+}
+
+.loupe-crosshair::after {
+  left: 50%;
+  top: -20px;
+  bottom: -20px;
+  width: 1px;
+  transform: translateX(-50%);
+  opacity: 0.7;
+}
+
+.loupe-info-badge {
+  margin-top: 8px;
+  background: rgba(15, 23, 42, 0.94);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--panel-border);
+  border-radius: 20px;
+  padding: 4px 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+  font-family: monospace;
+  font-size: 11px;
+  color: #f8fafc;
+}
+
+.color-preview-box {
+  width: 11px;
+  height: 11px;
+  border-radius: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.loupe-color-val {
+  font-weight: 600;
+  color: #38bdf8;
+}
+
+.loupe-coord {
+  color: #94a3b8;
+  font-size: 10px;
+}
+
+/* ==========================================================================
+   3.1 🍎 macOS Native Style Color Wheel Modal (颜色面板)
+   ========================================================================== */
+.macos-color-modal {
+  position: fixed;
+  bottom: 80px;
+  left: 40px;
+  width: 270px;
+  background: rgba(24, 33, 50, 0.97);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 14px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(0, 0, 0, 0.5);
+  z-index: 10000;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.macos-modal-header {
+  height: 34px;
+  background: rgba(15, 23, 42, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  cursor: move;
+  user-select: none;
+}
+
+.macos-traffic-dots {
+  position: absolute;
+  left: 12px;
+  display: flex;
+  gap: 6px;
+}
+
+.m-dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.m-dot:hover {
+  opacity: 0.8;
+}
+
+.m-dot-red { background: #ff5f56; }
+.m-dot-yellow { background: #ffbd2e; }
+.m-dot-green { background: #27c93f; }
+
+.macos-modal-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #cbd5e1;
+}
+
+.macos-modal-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 6px 12px;
+  background: rgba(15, 23, 42, 0.5);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.m-tab {
+  flex: 1;
+  padding: 4px 0;
+  border: none;
+  border-radius: 5px;
+  background: transparent;
+  color: #94a3b8;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.m-tab:hover {
+  color: #ffffff;
+}
+
+.m-tab.active {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.macos-modal-body {
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.wheel-container {
+  position: relative;
+  width: 180px;
+  height: 180px;
+  margin: 0 auto 6px auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#color-wheel-canvas {
+  border-radius: 50%;
+  cursor: crosshair;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+.wheel-handle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2.5px solid #ffffff;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.8);
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+}
+
+.slider-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.slider-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: #cbd5e1;
+}
+
+.slider-lbl {
+  width: 48px;
+  color: #94a3b8;
+  font-size: 11px;
+}
+
+.macos-slider {
+  flex: 1;
+  height: 4px;
+  border-radius: 2px;
+  -webkit-appearance: none;
+  background: rgba(255, 255, 255, 0.2);
+  outline: none;
+  cursor: pointer;
+}
+
+.macos-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+}
+
+.num-box {
+  width: 42px;
+  height: 22px;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 4px;
+  color: #f8fafc;
+  font-size: 11px;
+  text-align: center;
+  outline: none;
+}
+
+.hex-box {
+  width: 80px;
+  height: 22px;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 4px;
+  color: #38bdf8;
+  font-family: monospace;
+  font-size: 11px;
+  font-weight: bold;
+  text-align: center;
+  text-transform: uppercase;
+  outline: none;
+}
+
+.swatches-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 6px;
+  padding: 4px 0;
+}
+
+.swatch-cell {
+  height: 24px;
+  border-radius: 4px;
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  transition: transform 0.12s;
+}
+
+.swatch-cell:hover {
+  transform: scale(1.15);
+  border-color: #ffffff;
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.5);
+}
+
+.opacity-row {
+  padding-top: 4px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.opacity-val {
+  width: 38px;
+  text-align: right;
+  font-size: 11px;
+  color: #94a3b8;
+  font-family: monospace;
+}
+
+.macos-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.footer-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.color-preview-large {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  border: 1.5px solid #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.modal-dropper-btn {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: #fff;
+  transition: all 0.15s;
+}
+
+.modal-dropper-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+.modal-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.m-btn {
+  padding: 4px 10px;
+  font-size: 11px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 500;
+  border: none;
+  transition: all 0.15s;
+}
+
+.m-btn-cancel {
+  background: rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
+}
+
+.m-btn-cancel:hover {
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+}
+
+.m-btn-confirm {
+  background: var(--accent-blue);
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.m-btn-confirm:hover {
+  background: #2563eb;
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+}
+
+/* ==========================================================================
+   4. Floating Annotation Toolbar
+   ========================================================================== */
+.floating-toolbar {
+  position: absolute;
+  background: rgba(30, 41, 59, 0.88);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+  box-shadow: var(--panel-shadow);
+  padding: 6px 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  z-index: 1020;
+  pointer-events: auto;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.tool-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.tool-divider {
+  width: 1px;
+  height: 18px;
+  background: rgba(255, 255, 255, 0.12);
+  margin: 0 4px;
+}
+
+.tool-btn {
+  background: transparent;
+  border: none;
+  color: #cbd5e1;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.15s ease;
+  position: relative;
+}
+
+.tool-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.tool-btn.active {
+  background: var(--accent-blue);
+  color: #ffffff;
+  box-shadow: 0 2px 8px var(--accent-blue-glow);
+}
+
+.tool-btn.danger:hover {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+
+.tool-btn.confirm {
+  background: #10b981;
+  color: #ffffff;
+}
+
+.tool-btn.confirm:hover {
+  background: #059669;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);
+}
+
+/* Secondary Color & Size Palette Bar */
+.secondary-toolbar {
+  position: absolute;
+  top: 46px;
+  left: 0;
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--panel-border);
+  border-radius: 10px;
+  padding: 6px 10px;
+  display: none;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  z-index: 1025;
+}
+
+.color-dots {
+  display: flex;
+  gap: 6px;
+}
+
+.color-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: transform 0.15s ease;
+}
+
+.color-dot:hover {
+  transform: scale(1.2);
+}
+
+.color-dot.active {
+  border-color: #ffffff;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+  transform: scale(1.15);
+}
+
+/* Custom Palette Spectrum Button */
+.color-custom-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.rainbow-ring {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: conic-gradient(red, yellow, lime, aqua, blue, magenta, red);
+  border: 1.5px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
+  transition: all 0.15s ease;
+  display: inline-block;
+}
+
+.color-custom-btn:hover .rainbow-ring {
+  transform: scale(1.2);
+  border-color: #ffffff;
+  box-shadow: 0 0 8px var(--accent-blue-glow);
+}
+
+.color-custom-btn.active .rainbow-ring {
+  border-color: #ffffff;
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.9);
+  transform: scale(1.2);
+}
+
+#custom-color-input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+/* Screen Dropper Button */
+.dropper-btn {
+  width: 22px;
+  height: 22px;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #cbd5e1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 11px;
+  transition: all 0.15s ease;
+  padding: 0;
+}
+
+.dropper-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.dropper-btn.active {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  border-color: var(--accent-blue);
+  color: #ffffff;
+  box-shadow: 0 0 12px rgba(37, 99, 235, 0.8);
+  transform: scale(1.08);
+}
+
+/* Dropper Mode: Global Custom Eyedropper Pipette Cursor */
+body.dropper-mode,
+body.dropper-mode *,
+.screenshot-overlay.dropper-active,
+.screenshot-overlay.dropper-active * {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M20.7 7.3a2.4 2.4 0 0 0 0-3.4l-.6-.6a2.4 2.4 0 0 0-3.4 0l-2.4 2.4 1.7 1.7-6.8 6.8c-.3.3-.5.7-.5 1.2v2.6h2.6c.5 0 .9-.2 1.2-.5l6.8-6.8 1.7 1.7 1.7-1.7-2-2 2-2z' fill='%2338bdf8' stroke='%23ffffff' stroke-width='1.5' stroke-linejoin='round'/%3E%3Cpath d='M3 21l3-1-2-2-1 3z' fill='%23ffffff' stroke='%230f172a' stroke-width='1'/%3E%3C/svg%3E") 3 21, crosshair !important;
+}
+
+.stroke-sizes {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.size-pill {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 11px;
+}
+
+.size-pill.active {
+  background: var(--accent-blue);
+  color: #fff;
+}
+
+/* ==========================================================================
+   5. Keyboard Shortcuts Helper Card (Bottom Left)
+   ========================================================================== */
+.hotkey-helper-card {
+  position: fixed;
+  bottom: 24px;
+  left: 24px;
+  background: rgba(15, 23, 42, 0.88);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+  padding: 12px 16px;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6);
+  z-index: 1005;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 12px;
+  color: #cbd5e1;
+  pointer-events: none;
+}
+
+.hotkey-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.hotkey-keys {
+  display: flex;
+  gap: 4px;
+  min-width: 90px;
+}
+
+.hk-key {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 4px;
+  padding: 2px 5px;
+  font-family: var(--mono-stack);
+  font-size: 10px;
+  color: #ffffff;
+  display: inline-block;
+  text-align: center;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+.hotkey-desc {
+  color: #94a3b8;
+}
+
+/* ==========================================================================
+   6. Pinned Desktop Floating Window (贴图)
+   ========================================================================== */
+.pinned-window {
+  position: absolute;
+  background: rgba(30, 41, 59, 0.6);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1.5px solid var(--accent-blue);
+  border-radius: 10px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), 0 0 20px var(--accent-blue-glow);
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  overflow: visible;
+  cursor: move;
+  transition: box-shadow 0.2s ease;
+}
+
+.pinned-window:hover .pinned-hover-bar {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.pinned-hover-bar {
+  position: absolute;
+  top: -42px;
+  left: 50%;
+  transform: translateX(-50%) translateY(5px);
+  background: rgba(15, 23, 42, 0.92);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--panel-border);
+  border-radius: 10px;
+  padding: 4px 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  pointer-events: auto;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+}
+
+.pinned-bar-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.pinned-slider {
+  width: 60px;
+  height: 4px;
+  accent-color: var(--accent-blue);
+  cursor: pointer;
+}
+
+.pinned-btn {
+  background: transparent;
+  border: none;
+  color: #cbd5e1;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-size: 12px;
+  transition: color 0.15s ease;
+}
+
+.pinned-btn:hover {
+  color: #ffffff;
+}
+
+.pinned-img-body {
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pinned-img-body img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+/* Pinned Window Context Menu */
+.context-menu {
+  position: fixed;
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(25px);
+  border: 1px solid var(--panel-border);
+  border-radius: 10px;
+  padding: 6px;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6);
+  z-index: 3000;
+  display: none;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 160px;
+}
+
+.ctx-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #e2e8f0;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.ctx-item:hover {
+  background: var(--accent-blue);
+  color: #ffffff;
+}
+
+.ctx-shortcut {
+  font-size: 10px;
+  color: #94a3b8;
+  font-family: var(--mono-stack);
+}
+
+/* ==========================================================================
+   7. OCR & Text Recognition Modal (Topmost Layer)
+   ========================================================================== */
+.ocr-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: transparent !important; /* Keeps screenshot selection 100% original and crisp without greying out */
+  z-index: 999990 !important;
+  display: none;
+}
+
+.ocr-modal-backdrop.active {
+  display: block;
+}
+
+.ocr-modal {
+  position: fixed;
+  background: #1e293b !important;
+  border: 2px solid var(--accent-blue) !important;
+  border-radius: 14px;
+  padding: 18px 20px;
+  width: 500px;
+  max-width: 92vw;
+  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.95), 0 0 30px var(--accent-blue-glow) !important;
+  z-index: 999999 !important;
+  display: none;
+  opacity: 0;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  color: #ffffff;
+}
+
+.ocr-modal.active {
+  display: block;
+  opacity: 1;
+}
+
+.ocr-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  cursor: grab;
+  user-select: none;
+}
+
+.ocr-header:active {
+  cursor: grabbing;
+}
+
+.ocr-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ocr-close {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: #cbd5e1;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.ocr-close:hover {
+  background: rgba(239, 68, 68, 0.3);
+  color: #ef4444;
+}
+
+.ocr-textarea {
+  width: 100%;
+  height: 150px;
+  background: #0b1120 !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.15) !important;
+  border-radius: 8px;
+  padding: 12px;
+  color: #ffffff !important;
+  font-family: var(--mono-stack);
+  font-size: 13px;
+  line-height: 1.6;
+  resize: none;
+  outline: none;
+}
+
+.ocr-textarea:focus {
+  border-color: var(--accent-blue) !important;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4) !important;
+}
+
+.ocr-footer {
+  margin-top: 12px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.ocr-btn {
+  padding: 8px 18px;
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+  border: none;
+  font-weight: 500;
+  transition: all 0.15s ease;
+}
+
+.ocr-btn.secondary {
+  background: rgba(255, 255, 255, 0.1);
+  color: #e2e8f0;
+}
+
+.ocr-btn.secondary:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.ocr-btn.primary {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+}
+
+.ocr-btn.primary:hover {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  transform: translateY(-1px);
+}
+
+/* ==========================================================================
+   8. Toast Notification System
+   ========================================================================== */
+.toast-container {
+  position: fixed;
+  top: 48px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 5000;
+  pointer-events: none;
+}
+
+.toast {
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--panel-border);
+  border-radius: 20px;
+  padding: 8px 18px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #ffffff;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  animation: toastIn 0.25s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}

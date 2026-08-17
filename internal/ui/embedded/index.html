@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GoCapture 桌面截图软件</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ==========================================================================
+       1. 模拟桌面环境 (Simulated Desktop)
+       ========================================================================== -->
+  <div class="desktop-container" id="desktop-container">
+    <!-- macOS 顶部菜单栏 -->
+    <header class="mac-menubar">
+      <div class="menubar-left">
+        <span class="apple-logo"></span>
+        <span class="menubar-item active">GoCapture</span>
+        <span class="menubar-item">文件</span>
+        <span class="menubar-item">编辑</span>
+        <span class="menubar-item">标注</span>
+        <span class="menubar-item">贴图</span>
+        <span class="menubar-item">窗口</span>
+        <span class="menubar-item">帮助</span>
+      </div>
+      <div class="menubar-right">
+        <span class="menubar-item" id="desktop-time">14:38</span>
+        <span class="menubar-item">􀙇 100%</span>
+        <span class="menubar-item">􀌈</span>
+      </div>
+    </header>
+
+    <!-- 模拟工作区 (代码编辑器 + API 文档) -->
+    <main class="desktop-workspace">
+      <!-- 左侧：Go 截图引擎源码模拟窗口 -->
+      <div class="mockup-window" id="window-code">
+        <div class="window-header">
+          <div class="window-controls">
+            <span class="ctrl-btn red"></span>
+            <span class="ctrl-btn yellow"></span>
+            <span class="ctrl-btn green"></span>
+          </div>
+          <span class="window-title">main.go — capture_engine</span>
+          <span style="width: 40px;"></span>
+        </div>
+        <div class="window-body">
+          <div class="code-line"><span class="line-num">1</span><span><span class="code-kw">package</span> main</span></div>
+          <div class="code-line"><span class="line-num">2</span><span></span></div>
+          <div class="code-line"><span class="line-num">3</span><span><span class="code-kw">import</span> (</span></div>
+          <div class="code-line"><span class="line-num">4</span><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="code-str">"image"</span></span></div>
+          <div class="code-line"><span class="line-num">5</span><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="code-str">"image/draw"</span></span></div>
+          <div class="code-line"><span class="line-num">6</span><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="code-str">"github.com/gocapture/go-capture/pkg/capture"</span></span></div>
+          <div class="code-line"><span class="line-num">7</span><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="code-str">"github.com/gocapture/go-capture/pkg/ocr"</span></span></div>
+          <div class="code-line"><span class="line-num">8</span><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="code-str">"github.com/gocapture/go-capture/pkg/clipboard"</span></span></div>
+          <div class="code-line"><span class="line-num">9</span><span>)</span></div>
+          <div class="code-line"><span class="line-num">10</span><span></span></div>
+          <div class="code-line"><span class="line-num">11</span><span><span class="code-comment">// CaptureScreen 毫秒级捕获屏幕原始像素矩阵并开启高分屏透明遮罩</span></div>
+          <div class="code-line"><span class="line-num">12</span><span><span class="code-kw">func</span> <span class="code-fn">CaptureScreen</span>(displayIndex <span class="code-type">int</span>) (*<span class="code-type">image.RGBA</span>, <span class="code-type">error</span>) {</span></div>
+          <div class="code-line"><span class="line-num">13</span><span>&nbsp;&nbsp;&nbsp;&nbsp;capturer := capture.<span class="code-fn">NewCapturer</span>()</span></div>
+          <div class="code-line"><span class="line-num">14</span><span>&nbsp;&nbsp;&nbsp;&nbsp;img, err := capturer.<span class="code-fn">CaptureDisplay</span>(displayIndex)</span></div>
+          <div class="code-line"><span class="line-num">15</span><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="code-kw">if</span> err != <span class="code-kw">nil</span> {</span></div>
+          <div class="code-line"><span class="line-num">16</span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="code-kw">return</span> <span class="code-kw">nil</span>, err</span></div>
+          <div class="code-line"><span class="line-num">17</span><span>&nbsp;&nbsp;&nbsp;&nbsp;}</span></div>
+          <div class="code-line"><span class="line-num">18</span><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="code-kw">return</span> img, <span class="code-kw">nil</span></span></div>
+          <div class="code-line"><span class="line-num">19</span><span>}</span></div>
+          <div class="code-line"><span class="line-num">20</span><span></span></div>
+          <div class="code-line"><span class="line-num">21</span><span><span class="code-comment">// ExtractInSelection 字符级 100% 全包含离线 OCR 提取</span></div>
+          <div class="code-line"><span class="line-num">22</span><span><span class="code-kw">func</span> <span class="code-fn">ExtractInSelection</span>(chars []ocr.CharBoundingBox, sel ocr.SelectionRect) <span class="code-type">string</span> {</span></div>
+          <div class="code-line"><span class="line-num">23</span><span>&nbsp;&nbsp;&nbsp;&nbsp;matched := ocr.<span class="code-fn">FilterCharactersStrict100</span>(chars, sel)</span></div>
+          <div class="code-line"><span class="line-num">24</span><span>&nbsp;&nbsp;&nbsp;&nbsp;_, raw := ocr.<span class="code-fn">AssembleTextLines</span>(matched)</span></div>
+          <div class="code-line"><span class="line-num">25</span><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="code-kw">return</span> raw</span></div>
+          <div class="code-line"><span class="line-num">26</span><span>}</span></div>
+          <div class="code-line"><span class="line-num">27</span><span></span></div>
+          <div class="code-line"><span class="line-num">28</span><span><span class="code-kw">func</span> <span class="code-fn">main</span>() {</span></div>
+          <div class="code-line"><span class="line-num">29</span><span>&nbsp;&nbsp;&nbsp;&nbsp;println(<span class="code-str">"GoCapture 引擎启动就绪"</span>)</span></div>
+          <div class="code-line"><span class="line-num">30</span><span>}</span></div>
+        </div>
+      </div>
+
+      <!-- 右侧：设计架构与功能卡片模拟窗口 -->
+      <div class="mockup-window" id="window-docs">
+        <div class="window-header">
+          <div class="window-controls">
+            <span class="ctrl-btn red"></span>
+            <span class="ctrl-btn yellow"></span>
+            <span class="ctrl-btn green"></span>
+          </div>
+          <span class="window-title">Architecture & Specs.md</span>
+          <span style="width: 40px;"></span>
+        </div>
+        <div class="window-body">
+          <div class="doc-card">
+            <h3>⚡ 极致性能截屏架构</h3>
+            <p>基于 Golang 原生多线程调度与操作系统底层 C 接口直接交互，实现 <strong>&lt; 5ms</strong> 的全屏快照与毫秒级图层渲染。</p>
+            <span class="api-badge">CoreGraphics</span>
+            <span class="api-badge">DXGI Duplication</span>
+            <span class="api-badge">X11/Wayland</span>
+          </div>
+
+          <div class="doc-card">
+            <h3>📌 桌面贴图 (Pin Window)</h3>
+            <p>支持将截图一键钉在桌面最顶层，支持鼠标滚轮等比缩放、透明度滑动调节、顺时针 90° 旋转、水平翻转及右键离线 OCR 文本提取。</p>
+            <span class="api-badge">Topmost Window</span>
+            <span class="api-badge">Always on Top</span>
+            <span class="api-badge">Wheel Zoom 20%-300%</span>
+          </div>
+
+          <div class="doc-card">
+            <h3>🎯 像素级取色与辅助线</h3>
+            <p>13×13 奇数网格苹果圆形放大镜，中心点绝对对齐光标物理坐标，按需呼出，支持一键按 C 复制 HEX / RGB 色值，按 WASD 精确微调 1 像素十字准星。</p>
+            <span class="api-badge">13x13 Odd Grid</span>
+            <span class="api-badge">1px Nudge</span>
+            <span class="api-badge">NSColorSampler</span>
+          </div>
+
+          <div class="doc-card">
+            <h3>🔍 离线 RapidOCR 智能提取</h3>
+            <p>集成高精度离线 ONNX OCR 推理引擎，严格 100% 全包含字符空间判定，彻底杜绝切字与粘连误识别。</p>
+            <span class="api-badge">100% Enclosure</span>
+            <span class="api-badge">Char-Level Match</span>
+          </div>
+
+          <div class="doc-card">
+            <h3>🎨 向量批注与 macOS 调色盘</h3>
+            <p>支持矩形、箭头、平滑画笔、荧光笔、真实像素马赛克、自增步骤数字徽标及任意文字排版，附带 macOS 原生风格 HSV 色轮面板。</p>
+            <span class="api-badge">Vector Layer</span>
+            <span class="api-badge">Undo / Redo Stack</span>
+            <span class="api-badge">NSColorPanel</span>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- 底部悬浮快捷启动栏 -->
+    <div class="floating-launch-dock">
+      <button class="launch-btn" id="btn-start-snip">
+        <span>📸</span> 开始截图演示
+      </button>
+      <div class="dock-hint">
+        <span>或按下快捷键</span>
+        <span class="kbd-badge">Cmd / Ctrl + Shift + A</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       2. 截屏遮罩与交互层 (Fullscreen Overlay)
+       ========================================================================== -->
+  <div class="screenshot-overlay" id="screenshot-overlay">
+    <!-- 背景暗色全屏遮罩 Canvas -->
+    <canvas id="mask-canvas"></canvas>
+
+    <!-- 动态十字参考线 (无限延伸) -->
+    <div class="guideline-h" id="guideline-h"></div>
+    <div class="guideline-v" id="guideline-v"></div>
+
+    <!-- 矩形选区容器 -->
+    <div class="selection-box" id="selection-box">
+      <!-- 尺寸提示胶囊 -->
+      <div class="dimension-pill" id="dimension-pill">800 × 600 px</div>
+
+      <!-- 8 个控制拉伸点 -->
+      <div class="resize-handle handle-nw" data-handle="nw"></div>
+      <div class="resize-handle handle-n"  data-handle="n"></div>
+      <div class="resize-handle handle-ne" data-handle="ne"></div>
+      <div class="resize-handle handle-e"  data-handle="e"></div>
+      <div class="resize-handle handle-se" data-handle="se"></div>
+      <div class="resize-handle handle-s"  data-handle="s"></div>
+      <div class="resize-handle handle-sw" data-handle="sw"></div>
+      <div class="resize-handle handle-w"  data-handle="w"></div>
+
+      <!-- 选区内部矢量标注 Canvas -->
+      <canvas id="annotation-canvas"></canvas>
+    </div>
+
+    <!-- 🍎 苹果风格圆形像素放大镜与吸管取色器 (完全复刻参考图) -->
+    <div class="pixel-loupe macos-round-loupe" id="pixel-loupe">
+      <div class="loupe-lens-ring">
+        <canvas id="loupe-canvas" width="130" height="130"></canvas>
+        <div class="loupe-crosshair"></div>
+      </div>
+      <div class="loupe-info-badge">
+        <div class="color-preview-box" id="loupe-color-preview"></div>
+        <span class="loupe-color-val" id="loupe-color-val">#3B82F6</span>
+        <span class="loupe-coord" id="loupe-coord">(0, 0)</span>
+      </div>
+    </div>
+
+    <!-- 🍎 macOS 原生风格专业颜色调色盘窗口 (完全复刻参考图) -->
+    <div class="macos-color-modal" id="macos-color-modal" style="display: none;">
+      <div class="macos-modal-header" id="macos-color-header">
+        <div class="macos-traffic-dots">
+          <span class="m-dot m-dot-red" id="m-color-close" title="关闭"></span>
+          <span class="m-dot m-dot-yellow"></span>
+          <span class="m-dot m-dot-green"></span>
+        </div>
+        <span class="macos-modal-title">颜色</span>
+      </div>
+
+      <!-- 顶部模式切换 Tab -->
+      <div class="macos-modal-tabs">
+        <button class="m-tab active" data-tab="wheel" title="色轮">🎡 色轮</button>
+        <button class="m-tab" data-tab="sliders" title="RGB 滑块">🎚️ 滑块</button>
+        <button class="m-tab" data-tab="swatches" title="色板">🎨 色板</button>
+      </div>
+
+      <div class="macos-modal-body">
+        <!-- 1. 色轮 Tab -->
+        <div class="tab-pane active" id="pane-wheel">
+          <div class="wheel-container">
+            <canvas id="color-wheel-canvas" width="180" height="180"></canvas>
+            <div class="wheel-handle" id="wheel-handle"></div>
+          </div>
+          <div class="slider-row">
+            <span class="slider-lbl">亮度</span>
+            <input type="range" class="macos-slider" id="wheel-brightness" min="0" max="100" value="100">
+          </div>
+        </div>
+
+        <!-- 2. RGB 滑块 Tab -->
+        <div class="tab-pane" id="pane-sliders" style="display: none;">
+          <div class="slider-group">
+            <div class="slider-row">
+              <span class="slider-lbl">红 (R)</span>
+              <input type="range" class="macos-slider" id="slider-r" min="0" max="255" value="59">
+              <input type="number" class="num-box" id="num-r" min="0" max="255" value="59">
+            </div>
+            <div class="slider-row">
+              <span class="slider-lbl">绿 (G)</span>
+              <input type="range" class="macos-slider" id="slider-g" min="0" max="255" value="130">
+              <input type="number" class="num-box" id="num-g" min="0" max="255" value="130">
+            </div>
+            <div class="slider-row">
+              <span class="slider-lbl">蓝 (B)</span>
+              <input type="range" class="macos-slider" id="slider-b" min="0" max="255" value="246">
+              <input type="number" class="num-box" id="num-b" min="0" max="255" value="246">
+            </div>
+            <div class="slider-row hex-row">
+              <span class="slider-lbl">Hex</span>
+              <input type="text" class="hex-box" id="input-hex-val" value="#3B82F6" maxlength="7">
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. 色板 Tab -->
+        <div class="tab-pane" id="pane-swatches" style="display: none;">
+          <div class="swatches-grid" id="swatches-grid"></div>
+        </div>
+
+        <!-- 不透明度滑块 -->
+        <div class="slider-row opacity-row">
+          <span class="slider-lbl">不透明度</span>
+          <input type="range" class="macos-slider" id="color-opacity" min="10" max="100" value="100">
+          <span class="opacity-val" id="opacity-val">100%</span>
+        </div>
+
+        <!-- 底部吸管、历史色块与确定/取消栏 -->
+        <div class="macos-modal-footer">
+          <div class="footer-left">
+            <div class="color-preview-large" id="modal-color-preview" style="background: #3b82f6;"></div>
+            <button class="modal-dropper-btn" id="modal-btn-dropper" title="屏幕吸管取色 (💉)">💉</button>
+            <div class="swatch-history" id="swatch-history"></div>
+          </div>
+          <div class="modal-actions">
+            <button class="m-btn m-btn-cancel" id="btn-color-cancel">取消</button>
+            <button class="m-btn m-btn-confirm" id="btn-color-confirm">确定</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 悬浮标注工具栏 (Toolbar) -->
+    <div class="floating-toolbar" id="floating-toolbar" style="display: none;">
+      <!-- 矢量绘制工具组 -->
+      <div class="tool-group">
+        <button class="tool-btn" data-tool="rect" title="矩形框 (R)">⬚</button>
+        <button class="tool-btn" data-tool="arrow" title="箭头 (A)">↗</button>
+        <button class="tool-btn" data-tool="pen" title="画笔涂鸦 (P)">✏️</button>
+        <button class="tool-btn" data-tool="highlighter" title="荧光笔 (H)">🖍️</button>
+        <button class="tool-btn" data-tool="mosaic" title="马赛克 / 模糊 (M)">▦</button>
+        <button class="tool-btn" data-tool="step" title="步骤序号徽标 (S)">❶</button>
+        <button class="tool-btn" data-tool="text" title="文字输入 (T)">🆃</button>
+      </div>
+
+      <div class="tool-divider"></div>
+
+      <!-- 历史与设置 -->
+      <div class="tool-group">
+        <button class="tool-btn" id="btn-palette" title="调节颜色与线宽">🎨</button>
+        <button class="tool-btn" id="btn-undo" title="撤销 (Cmd+Z)">↶</button>
+        <button class="tool-btn" id="btn-redo" title="重做 (Cmd+Y)">↷</button>
+      </div>
+
+      <div class="tool-divider"></div>
+
+      <!-- 核心动作组 -->
+      <div class="tool-group">
+        <button class="tool-btn" id="btn-pin" title="桌面贴图 (Pin to Screen)">📌</button>
+        <button class="tool-btn" id="btn-ocr" title="离线 OCR 文字识别">🔍</button>
+        <button class="tool-btn" id="btn-save" title="保存到文件 (Cmd+S)">💾</button>
+        <button class="tool-btn confirm" id="btn-copy" title="复制并退出 (Enter / 双击)">📋</button>
+        <button class="tool-btn danger" id="btn-cancel" title="取消截屏 (Esc)">✕</button>
+      </div>
+
+      <!-- 二级色彩与线宽悬浮调节面板 -->
+      <div class="secondary-toolbar" id="secondary-toolbar">
+        <div class="color-dots">
+          <span class="color-dot active" data-color="#ef4444" style="background: #ef4444;" title="烈焰红"></span>
+          <span class="color-dot" data-color="#f59e0b" style="background: #f59e0b;" title="琥珀黄"></span>
+          <span class="color-dot" data-color="#10b981" style="background: #10b981;" title="翡翠绿"></span>
+          <span class="color-dot" data-color="#3b82f6" style="background: #3b82f6;" title="极客蓝"></span>
+          <span class="color-dot" data-color="#8b5cf6" style="background: #8b5cf6;" title="曜石紫"></span>
+          <span class="color-dot" data-color="#ffffff" style="background: #ffffff;" title="纯洁白"></span>
+          <span class="color-dot" data-color="#000000" style="background: #0f172a; border: 1px solid #475569;" title="暗夜黑"></span>
+
+          <!-- 🌈 macOS 原生调色盘弹窗触发按钮 -->
+          <button class="color-custom-btn" id="btn-open-color-wheel" title="打开 macOS 原生颜色调色板 (色轮/滑块/色板)">
+            <span class="rainbow-ring" id="custom-color-preview"></span>
+          </button>
+
+          <!-- 💉 屏幕吸管实时取色器 (从屏幕任意像素吸取颜色) -->
+          <button class="dropper-btn" id="btn-screen-dropper" title="屏幕吸管取色 (点击后从屏幕吸取任意像素颜色)">💉</button>
+        </div>
+        <div class="tool-divider"></div>
+        <div class="stroke-sizes">
+          <span class="size-pill active" data-size="2" title="细 (2px)">2</span>
+          <span class="size-pill" data-size="4" title="中 (4px)">4</span>
+          <span class="size-pill" data-size="8" title="粗 (8px)">8</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 左下角快捷键与高级操作指南面板 (完全复刻参考图) -->
+    <div class="hotkey-helper-card" id="hotkey-card">
+      <div class="hotkey-row">
+        <div class="hotkey-keys">
+          <span class="hk-key">W</span>
+          <span class="hk-key">A</span>
+          <span class="hk-key">S</span>
+          <span class="hk-key">D</span>
+        </div>
+        <span class="hotkey-desc">将鼠标指针移动 1 像素</span>
+      </div>
+
+      <div class="hotkey-row">
+        <div class="hotkey-keys">
+          <span class="hk-key">↑</span>
+          <span class="hk-key">↓</span>
+          <span class="hk-key">←</span>
+          <span class="hk-key">→</span>
+        </div>
+        <span class="hotkey-desc">将截屏区域移动 1 像素</span>
+      </div>
+
+      <div class="hotkey-row">
+        <div class="hotkey-keys">
+          <span class="hk-key">⌘/⌃</span>
+          <span class="hk-key">A</span>
+        </div>
+        <span class="hotkey-desc">设置截屏区域为当前屏幕/全屏</span>
+      </div>
+
+      <div class="hotkey-row">
+        <div class="hotkey-keys">
+          <span class="hk-key">，</span>
+          <span class="hk-key">。</span>
+        </div>
+        <span class="hotkey-desc">回溯截屏历史</span>
+      </div>
+
+      <div class="hotkey-row">
+        <div class="hotkey-keys">
+          <span class="hk-key">C</span>
+        </div>
+        <span class="hotkey-desc">复制取色器当前颜色值</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       3. 贴图容器 (Pinned Windows Container)
+       ========================================================================== -->
+  <div id="pinned-container"></div>
+
+  <!-- 贴图右键菜单 -->
+  <div class="context-menu" id="pinned-context-menu">
+    <div class="ctx-item" data-action="copy">
+      <span>📋 复制图片</span>
+      <span class="ctx-shortcut">⌘C</span>
+    </div>
+    <div class="ctx-item" data-action="ocr">
+      <span>🔍 OCR 文字识别</span>
+      <span class="ctx-shortcut">[A]</span>
+    </div>
+    <div class="ctx-item" data-action="topmost">
+      <span>📌 窗口置顶状态</span>
+      <span class="ctx-shortcut">✓</span>
+    </div>
+    <div class="ctx-item" data-action="save">
+      <span>💾 另存为文件...</span>
+      <span class="ctx-shortcut">⌘S</span>
+    </div>
+    <div class="tool-divider" style="width: 100%; margin: 4px 0;"></div>
+    <div class="ctx-item" data-action="close" style="color: #ef4444;">
+      <span>✕ 关闭贴图</span>
+      <span class="ctx-shortcut">Esc</span>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       4. OCR 识别弹窗 (OCR Dialog - Topmost Layer)
+       ========================================================================== -->
+  <div class="ocr-modal-backdrop" id="ocr-modal-backdrop"></div>
+  <div class="ocr-modal" id="ocr-modal">
+    <div class="ocr-header">
+      <div class="ocr-title">🔍 离线 OCR 文本提取结果 (RapidOCR)</div>
+      <button class="ocr-close" id="ocr-modal-close">✕</button>
+    </div>
+    <textarea class="ocr-textarea" id="ocr-text-result" spellcheck="false"></textarea>
+    <div class="ocr-footer">
+      <button class="ocr-btn secondary" id="ocr-btn-close">关闭</button>
+      <button class="ocr-btn primary" id="ocr-btn-copy">📋 复制全部文本</button>
+    </div>
+  </div>
+
+  <!-- 消息气泡提示容器 -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
