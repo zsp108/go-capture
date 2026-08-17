@@ -7,6 +7,15 @@ package ui
 #cgo LDFLAGS: -framework Cocoa -framework CoreGraphics -framework QuartzCore
 #import <Cocoa/Cocoa.h>
 
+// Initialize NSApplication for accessory/helper mode
+static void init_ns_app() {
+    @autoreleasepool {
+        [NSApplication sharedApplication];
+        [NSApp setActivationPolicy:NSApplicationActivationPolicyAccessory];
+        [NSApp finishLaunching];
+    }
+}
+
 // C-compatible bridge functions for Objective-C window management
 static void* create_overlay_window(int x, int y, int w, int h) {
     @autoreleasepool {
@@ -59,9 +68,15 @@ import "C"
 import (
 	"fmt"
 	"image"
+	"runtime"
 	"sync"
 	"unsafe"
 )
+
+func init() {
+	runtime.LockOSThread()
+	C.init_ns_app()
+}
 
 // DarwinNativeWindow implements NativeWindow for macOS using Cocoa NSWindow.
 type DarwinNativeWindow struct {
