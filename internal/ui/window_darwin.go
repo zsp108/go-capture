@@ -12,8 +12,11 @@ package ui
 
 @implementation GoCaptureAppDelegate
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
-    // Immediately responds to LaunchServices to prevent -1712 timeout error
     NSLog(@"[GoCapture] Application initialized and ready.");
+}
+
+- (BOOL)applicationShouldHandleReopen:(NSApplication *)sender hasVisibleWindows:(BOOL)flag {
+    return YES;
 }
 
 - (NSApplicationTerminateReply)applicationShouldTerminate:(NSApplication *)sender {
@@ -25,9 +28,13 @@ package ui
 static void run_ns_app() {
     @autoreleasepool {
         NSApplication *app = [NSApplication sharedApplication];
-        GoCaptureAppDelegate *delegate = [[GoCaptureAppDelegate alloc] init];
+        static GoCaptureAppDelegate *delegate = nil;
+        if (delegate == nil) {
+            delegate = [[GoCaptureAppDelegate alloc] init];
+        }
         [app setDelegate:delegate];
         [app setActivationPolicy:NSApplicationActivationPolicyAccessory];
+        [app finishLaunching];
         [app run];
     }
 }
