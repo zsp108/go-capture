@@ -7,13 +7,28 @@ package ui
 #cgo LDFLAGS: -framework Cocoa -framework CoreGraphics -framework QuartzCore
 #import <Cocoa/Cocoa.h>
 
+@interface GoCaptureAppDelegate : NSObject <NSApplicationDelegate>
+@end
+
+@implementation GoCaptureAppDelegate
+- (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
+    // Immediately responds to LaunchServices to prevent -1712 timeout error
+    NSLog(@"[GoCapture] Application initialized and ready.");
+}
+
+- (NSApplicationTerminateReply)applicationShouldTerminate:(NSApplication *)sender {
+    return NSTerminateNow;
+}
+@end
+
 // Run the Cocoa event loop on the main OS thread
 static void run_ns_app() {
     @autoreleasepool {
-        [NSApplication sharedApplication];
-        [NSApp setActivationPolicy:NSApplicationActivationPolicyAccessory];
-        [NSApp finishLaunching];
-        [NSApp run];
+        NSApplication *app = [NSApplication sharedApplication];
+        GoCaptureAppDelegate *delegate = [[GoCaptureAppDelegate alloc] init];
+        [app setDelegate:delegate];
+        [app setActivationPolicy:NSApplicationActivationPolicyAccessory];
+        [app run];
     }
 }
 
